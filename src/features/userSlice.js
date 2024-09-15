@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 // API Base URL
-const API_URL = 'https://crud12backend.onrender.com/';
+const API_URL = 'https://crud12backend.onrender.com/api/users';
 
 // Fetch all users
 export const fetchUsers = createAsyncThunk('users/fetchUsers', async () => {
