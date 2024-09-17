@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // API Base URL
 const API_URL = 'https://crud12backend.onrender.com/api/users';
-const PAYMENT_URL = 'https://crud12backend.onrender.com/api/payments'; // Payment API base URL
+//const PAYMENT_URL = 'https://crud12backend.onrender.com/api/payments';
 
 // Fetch all users
 export const fetchUsers = createAsyncThunk('users/fetchUsers', async () => {

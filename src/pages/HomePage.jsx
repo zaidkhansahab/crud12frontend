@@ -1,12 +1,16 @@
-// pages/homepage.jsx
 import React, { useState, useEffect } from 'react';
 import UserList from '../components/UserList';
 import UserForm from '../components/UserForm';
-import PaymentForm from '../components/PaymentForm'; // Import PaymentForm
+import PaymentForm from '../components/PaymentForm';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUsers } from '../features/userSlice';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
   const [currentUser, setCurrentUser] = useState(null);
-  const [theme, setTheme] = useState('light');
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const paymentStatus = useSelector((state) => state.users.paymentStatus);
 
   const handleEditUser = (user) => {
     setCurrentUser(user);
@@ -16,62 +20,33 @@ const HomePage = () => {
     setCurrentUser(null);
   };
 
-  // Toggle theme between light and dark
-  const toggleTheme = () => {
-    if (theme === 'light') {
-      document.documentElement.classList.add('dark');
-      setTheme('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      setTheme('light');
-    }
+  const fetchAndDisplayUsers = () => {
+    dispatch(fetchUsers());
+  };
+
+  const handlePaymentSuccess = () => {
+    fetchAndDisplayUsers();
+    navigate('/crud-page');
   };
 
   useEffect(() => {
-    // Set theme from localStorage (if stored)
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.add(savedTheme);
+    if (paymentStatus === 'succeeded') {
+      fetchAndDisplayUsers();
     }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+  }, [paymentStatus]);
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-900 min-h-screen p-6 transition-colors duration-500">
-      <h1 className="text-4xl font-bold text-center text-gray-900 dark:text-white mb-8">
-        CRUD Application
-      </h1>
+    <div className="bg-gray-900 text-white min-h-screen p-6 transition-colors duration-500">
+      <h1 className="text-4xl font-bold mb-6 text-center">User Management</h1>
 
-      {/* Theme Toggle Button */}
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={toggleTheme}
-          className="px-4 py-2 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-        >
-          {theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-        </button>
-      </div>
-
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {/* User Form Section */}
-        <div className="order-2 md:order-1">
+      {paymentStatus === 'succeeded' ? (
+        <div className="flex flex-col md:flex-row gap-6">
           <UserForm currentUser={currentUser} clearCurrentUser={clearCurrentUser} />
+          <UserList onEditUser={handleEditUser} />
         </div>
-
-        {/* User List Section */}
-        <div className="order-1 md:order-2">
-          <UserList onEdit={handleEditUser} />
-        </div>
-
-        {/* Payment Form Section */}
-        <div className="order-3 md:order-3 lg:order-3">
-          <PaymentForm />
-        </div>
-      </div>
+      ) : (
+        <PaymentForm onPaymentSuccess={handlePaymentSuccess} />
+      )}
     </div>
   );
 };

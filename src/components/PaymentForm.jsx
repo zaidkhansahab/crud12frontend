@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-const PaymentForm = () => {
+const PaymentForm = ({ onPaymentSuccess }) => {
   const [amount, setAmount] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false); // For handling button state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const handlePayment = async () => {
     if (!amount || isNaN(amount) || amount <= 0) {
@@ -11,35 +13,36 @@ const PaymentForm = () => {
       return;
     }
 
-    setIsSubmitting(true); // Set submitting state to true
+    setIsSubmitting(true);
 
     try {
-      // Create an order by calling your backend
       const orderResponse = await axios.post('https://crud12backend.onrender.com/api/payment/order', {
-        amount: amount * 100, // Amount in paise (convert from INR)
+        amount: amount * 100, // Razorpay accepts amount in paise
         currency: 'INR',
         receipt: 'receipt_1'
       });
 
-      const { orderId } = orderResponse.data;
+      const { id: orderId } = orderResponse.data; // Extract orderId
 
-      // Proceed to Razorpay payment
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID, // Use the key from environment variables
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: orderResponse.data.amount,
         currency: orderResponse.data.currency,
         name: 'Your Company Name',
         description: 'Test Transaction',
-        order_id: orderId, // Order ID from backend
+        order_id: orderId, // Pass the correct orderId
         handler: async function (response) {
+          // Send data to backend for verification
           const verifyResponse = await axios.post('https://crud12backend.onrender.com/api/payment/verify', {
-            order_id: orderId,
-            payment_id: response.razorpay_payment_id,
-            signature: response.razorpay_signature
+            razorpay_order_id: orderId, // Match backend expectation
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature
           });
 
-          if (verifyResponse.data.success) {
+          if (verifyResponse.data.message === 'Payment verification successful') {
             alert('Payment Successful!');
+            onPaymentSuccess(); // Perform any success logic
+            navigate('/crud-page'); // Redirect to your CRUD page
           } else {
             alert('Payment Verification Failed!');
           }
@@ -60,13 +63,13 @@ const PaymentForm = () => {
       console.error('Error initiating payment:', error);
       alert('Error initiating payment!');
     } finally {
-      setIsSubmitting(false); // Reset submitting state
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100 p-4">
-      <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-900 p-4">
+      <div className="bg-gray-800 text-white p-6 rounded shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-4 text-center">Payment Form</h2>
         <input
           type="number"
@@ -74,11 +77,11 @@ const PaymentForm = () => {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="Enter amount in INR"
-          className="w-full p-2 mb-4 border border-gray-300 rounded"
+          className="w-full p-2 mb-4 border border-gray-700 bg-gray-900 text-white rounded"
         />
         <button
           onClick={handlePayment}
-          className={`w-full bg-blue-500 text-white font-bold py-2 px-4 rounded shadow-lg hover:bg-blue-700 transition duration-300 ease-in-out ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`w-full bg-blue-600 text-white font-bold py-2 px-4 rounded shadow-lg hover:bg-blue-700 transition duration-300 ease-in-out ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Processing...' : 'Pay Now'}

@@ -1,13 +1,16 @@
-
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from './pages/HomePage';
-
+import CRUDPage from './pages/CRUDPage';
 
 const App = () => {
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-500">
-      <HomePage />
-      
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/crud-page" element={<CRUDPage />} />
+      </Routes>
+    </Router>
   );
 };
 
