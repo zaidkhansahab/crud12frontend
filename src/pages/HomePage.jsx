@@ -1,6 +1,8 @@
+// pages/homepage.jsx
 import React, { useState, useEffect } from 'react';
 import UserList from '../components/UserList';
 import UserForm from '../components/UserForm';
+import PaymentForm from '../components/PaymentForm'; // Import PaymentForm
 
 const HomePage = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -54,7 +56,7 @@ const HomePage = () => {
         </button>
       </div>
 
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {/* User Form Section */}
         <div className="order-2 md:order-1">
           <UserForm currentUser={currentUser} clearCurrentUser={clearCurrentUser} />
@@ -63,6 +65,11 @@ const HomePage = () => {
         {/* User List Section */}
         <div className="order-1 md:order-2">
           <UserList onEdit={handleEditUser} />
+        </div>
+
+        {/* Payment Form Section */}
+        <div className="order-3 md:order-3 lg:order-3">
+          <PaymentForm />
         </div>
       </div>
     </div>
