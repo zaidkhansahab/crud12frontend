@@ -15,7 +15,7 @@ const PaymentForm = () => {
 
     try {
       // Create an order by calling your backend
-      const orderResponse = await axios.post('http://localhost:5000/api/payment/order', {
+      const orderResponse = await axios.post('https://crud12backend.onrender.com/api/payment/order', {
         amount: amount * 100, // Amount in paise (convert from INR)
         currency: 'INR',
         receipt: 'receipt_1'
@@ -32,7 +32,7 @@ const PaymentForm = () => {
         description: 'Test Transaction',
         order_id: orderId, // Order ID from backend
         handler: async function (response) {
-          const verifyResponse = await axios.post('http://localhost:5000/api/payment/verify', {
+          const verifyResponse = await axios.post('https://crud12backend.onrender.com/api/payment/verify', {
             order_id: orderId,
             payment_id: response.razorpay_payment_id,
             signature: response.razorpay_signature
